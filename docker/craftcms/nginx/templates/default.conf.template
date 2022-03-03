@@ -1,0 +1,104 @@
+upstream php-fpm {
+    server 127.0.0.1:9000;
+}
+
+server {
+    listen       ${PORT} default_server;
+    listen       [::]:${PORT} default_server;
+
+    error_log   /dev/stderr notice;
+    access_log  /dev/stdout;
+
+    root /app/web;
+
+    # security
+    include     craftcms/security.conf;
+
+    # index.php
+    index       index.php;
+
+    # index.php fallback
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # additional config
+    include craftcms/general.conf;
+
+    proxy_send_timeout ${NGINX_PROXY_SEND_TIMEOUT};
+    proxy_read_timeout ${NGINX_PROXY_READ_TIMEOUT};
+    fastcgi_send_timeout ${NGINX_FASTCGI_SEND_TIMEOUT};
+    fastcgi_read_timeout ${NGINX_FASTCGI_READ_TIMEOUT};
+
+    error_page 404 /index.php?$query_string;
+
+    set $actual_scheme $scheme;
+    if ($http_x_forwarded_proto) {
+        set $actual_scheme $http_x_forwarded_proto;
+    }
+
+    rewrite ^/(.*)/$ $actual_scheme://$host/$1 permanent;
+
+    # Change // -> / for all URLs, so it works for our php location block, too
+    merge_slashes off;
+    rewrite (.*)//+(.*) $actual_scheme://$host$1/$2 permanent;
+
+    # For WordPress bots/users
+    location ~ ^/(wp-login|wp-admin|wp-config|wp-content|wp-includes|(.*)\.exe) {
+        return 301 https://wordpress.com/wp-login.php;
+    }
+
+    # Media: images, icons, video, audio, HTC
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp3|mp4|ogg|ogv|webm|htc|webp)$ {
+        # Uncomment these lines if you want to serve up a placeholder image for 404s
+        # for static assets:
+        # error_page 404 /img/placeholder-image.png;
+        # try_files $uri =404;
+        etag off;
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # CSS and Javascript
+    location ~* \.(?:css|js)$ {
+        etag off;
+        expires 1y;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # WebFonts
+    location ~* \.(?:ttf|ttc|otf|eot|woff|woff2)$ {
+        etag off;
+        add_header "Access-Control-Allow-Origin" "*";
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    location ~ \.php$ {
+        try_files $uri $uri/ /index.php?$query_string;
+        fastcgi_pass php-fpm;
+        fastcgi_index index.php;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        include fastcgi_params;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+
+    # Allow fpm ping and status from localhost and private IPs
+    location ~ ^/(fpm-status|fpm-ping)$ {
+        access_log off;
+        # Private IPs:
+        allow 10.0.0.0/8;
+        allow 172.16.0.0/12;
+        allow 192.168.0.0/16;
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass php-fpm;
+    }
+}

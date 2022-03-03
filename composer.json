@@ -1,0 +1,51 @@
+{
+  "name": "noahjahn/cms",
+  "description": "Content management system for myself, Noah Jahn",
+  "require": {
+    "php": ">=8.0",
+    "ext-ctype": "*",
+    "ext-curl": "*",
+    "ext-iconv": "*",
+    "ext-imagick": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "ext-pdo": "*",
+    "ext-zip": "*",
+    "craftcms/cms": "3.7.36",
+    "vlucas/phpdotenv": "^5.4"
+  },
+  "require-dev": {
+    "yiisoft/yii2-shell": "^2.0.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "modules\\": "modules/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "8.0",
+      "ext-ctype": "8.0",
+      "ext-curl": "8.0",
+      "ext-imagick": "3.7",
+      "ext-iconv": "8.0",
+      "ext-json": "8.0",
+      "ext-mbstring": "8.0",
+      "ext-openssl": "8.0",
+      "ext-pdo": "8.0",
+      "ext-zip": "1.20"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
+  }
+}

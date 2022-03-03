@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: cms-web
+    env: docker
+    region: ohio
+    plan: free
+    branch: main
+    dockerfilePath: ./docker/Dockerfile.web
+    dockerContext: .
+    healthCheckPath: /actions/app/health-check
+    domains:
+      - cms.noahjahn.dev
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DB_DRIVER
+        value: pgsql
+      - key: DB_SCHEMA
+        value: public
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cms-database
+          property: connectionString
+      - key: APP_ID
+        generateValue: true
+      - key: SECURITY_KEY
+        generateValue: true
+      - key: CP_TRIGGER
+        value: admin
+      - key: CRAFT_STREAM_LOG
+        value: true
+      - key: BASE_URL
+        value: https://cms.noahjahn.dev
+
+databases:
+  - name: cms-database
+    region: oregon
+    plan: free
+    ipAllowList: []
+    postgresMajorVersion: 13

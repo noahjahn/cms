@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.2
+
+FROM composer:2.2 as composer
+WORKDIR /app
+COPY composer.json composer.lock /app/
+RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts --prefer-dist
+
+FROM craftcms/nginx:8.0
+
+ENV NGINX_PROXY_SEND_TIMEOUT=30s
+ENV NGINX_PROXY_READ_TIMEOUT=30s
+ENV NGINX_FASTCGI_SEND_TIMEOUT=30s
+ENV NGINX_FASTCGI_READ_TIMEOUT=30s
+ENV PHP_OPCACHE_ENABLE=1
+ENV PHP_DATE_TIMEZONE=UTC
+ENV PORT=80
+
+USER root
+
+RUN apk --no-cache add gettext postgresql-client
+
+RUN mkdir -p /var/lib/nginx /etc/nginx/conf.d /app/storage \
+    && chown -R www-data:www-data /var/lib/nginx /etc/nginx/conf.d /app/storage \
+    && chmod -R 775 /var/lib/nginx /etc/nginx/conf.d /app/storage
+
+RUN touch /var/lib/nginx/logs/error.log && chown www-data:www-data /var/lib/nginx/logs/error.log
+
+# The license.key is added using a Render secret file
+RUN --mount=type=secret,id=license_key,dst=/etc/secrets/license.key mkdir -p /app/config && \
+    cp /etc/secrets/license.key /app/config/license.key && \
+    chown -R www-data:www-data /app
+
+ADD --chown=www-data:www-data docker/bin/start.sh /app/docker/bin/
+ADD --chown=www-data:www-data docker/craftcms/nginx/templates/* /etc/nginx/templates/
+ADD --chown=www-data:www-data docker/craftcms/nginx/nginx.conf /etc/nginx/
+ADD --chown=www-data:www-data docker/craftcms/php/zzz-custom.ini /usr/local/etc/php/conf.d/
+ADD --chown=www-data:www-data docker/craftcms/php-fpm/zzz-custom.conf /usr/local/etc/php-fpm.d/
+COPY --chown=www-data:www-data ./ /app
+COPY --from=composer --chown=www-data:www-data /app/vendor /app/vendor
+
+USER www-data
+
+ENTRYPOINT ["sh", "/app/docker/bin/start.sh"]

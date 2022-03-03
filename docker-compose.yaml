@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+      dockerfile: ./docker/postgres/Dockerfile
+      context: .
+      args:
+        UID: ${UID}
+    restart: 'always'
+    user: ${UID}:${UID}
+    environment:
+      POSTGRES_USER: craft
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  php-fpm-nginx:
+    build:
+      dockerfile: ./docker/craftcms/Dockerfile
+      context: .
+      args:
+        UID: ${UID}
+    restart: 'always'
+    environment:
+      - PORT=80
+      - DATABASE_URL=postgresql://craft:secret@postgres:5432/craft
+      - DB_SERVER=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=craft
+      - DB_USER=craft
+    user: ${UID}:${UID}
+    volumes:
+      - ./config:/app/config
+      - ./modules:/app/modules
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+      - ./web:/app/web
+      - ./.env:/app/.env
+      - ./composer.json:/app/composer.json
+      - ./composer.lock:/app/composer.lock
+      - ./craft:/app/craft
+      - ./docker/craftcms/nginx/templates:/etc/nginx/templates
+      - vendor:/app/vendor
+    ports:
+      - 80:80
+    depends_on:
+      - postgres
+
+  craft-cli:
+    build:
+      dockerfile: ./docker/craftcli/Dockerfile
+      context: .
+    user: ${UID}:${UID}
+    restart: 'always'
+    volumes:
+      - ./config:/app/config
+      - ./modules:/app/modules
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+      - ./web:/app/web
+      - ./.env:/app/.env
+      - ./composer.json:/app/composer.json
+      - ./composer.lock:/app/composer.lock
+      - ./craft:/app/craft
+      - vendor:/app/vendor
+    command: [ "/app/craft", "queue/listen" ]
+    depends_on:
+      - postgres
+
+  composer:
+    build:
+      dockerfile: ./docker/composer/Dockerfile
+      context: .
+      args:
+        UID: ${UID}
+    user: ${UID}:${UID}
+    restart: 'no'
+    command: [ "install", "-o", "--no-interaction" ]
+    volumes:
+      - ./composer.json:/app/composer.json
+      - ./composer.lock:/app/composer.lock
+      - vendor:/app/vendor
+
+volumes:
+  vendor:
+  postgres:

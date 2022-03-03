@@ -1,0 +1,9 @@
+baseUrl: $BASE_URL
+enabled: true
+handle: default
+hasUrls: true
+language: en-US
+name: 'Noah''s CMS'
+primary: true
+siteGroup: 82f72d01-9bbf-4096-895e-0f5b88ef8c9b # Noah's CMS
+sortOrder: 1

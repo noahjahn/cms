@@ -1,0 +1,26 @@
+dateModified: 1646333707
+email:
+  fromEmail: noreply@noahjahn.dev
+  fromName: 'Noah''s CMS'
+  replyToEmail: null
+  template: null
+  transportSettings:
+    command: '/usr/sbin/sendmail -bs'
+  transportType: craft\mail\transportadapters\Sendmail
+meta:
+  __names__:
+    82f72d01-9bbf-4096-895e-0f5b88ef8c9b: 'Noah''s CMS' # Noah's CMS
+    96f3183d-603a-492d-8c64-470eb3d89498: 'Noah''s CMS' # Noah's CMS
+    e6cbc617-dec2-47a7-a76d-3a9f1fb0aa9b: Common # Common
+system:
+  edition: solo
+  live: true
+  name: 'Noah''s CMS'
+  schemaVersion: 3.7.33
+  timeZone: America/Los_Angeles
+users:
+  allowPublicRegistration: false
+  defaultGroup: null
+  photoSubpath: null
+  photoVolumeUid: null
+  requireEmailVerification: true
