@@ -5,7 +5,7 @@ WORKDIR /app
 COPY composer.json composer.lock /app/
 RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts --prefer-dist
 
-FROM craftcms/nginx:8.0
+FROM craftcms/nginx:8.1
 
 ENV NGINX_PROXY_SEND_TIMEOUT=30s
 ENV NGINX_PROXY_READ_TIMEOUT=30s
