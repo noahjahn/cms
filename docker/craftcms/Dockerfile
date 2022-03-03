@@ -1,4 +1,4 @@
-FROM craftcms/nginx:8.0
+FROM craftcms/nginx:8.1
 
 # The default www-data user id in this image is 82
 ARG UID=82
