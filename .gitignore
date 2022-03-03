@@ -1,0 +1,31 @@
+# CRAFT ENVIRONMENT AND SECRETS
+.env*
+!/.env.example
+config/license.key
+
+# CRAFT STORAGE
+/storage/*
+!/storage/.gitkeep
+
+# COMPOSER
+/vendor
+
+# BUILD FILES
+/node_modules
+/node_modules/*
+
+# DATABASE
+/database-import/*
+!/database-import/.gitkeep
+
+# ASSETS
+/web/dist/*
+!/web/dist/.gitkeep
+!/web/dist/vendor/.gitkeep
+/web/images/uploads/*
+!/web/images/uploads/.gitkeep
+!/web/images/uploads/**/.gitkeep
+
+# MISC FILES
+/.idea
+.DS_Store
