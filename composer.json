@@ -12,7 +12,7 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-zip": "*",
-    "craftcms/cms": "3.7.36",
+    "craftcms/cms": "3.7.47.1",
     "vlucas/phpdotenv": "^5.4"
   },
   "require-dev": {
