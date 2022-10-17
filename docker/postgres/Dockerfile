@@ -1,4 +1,4 @@
-FROM postgres:13
+FROM postgres:15
 
 # The default postgres user id in this image is 999
 ARG UID=999
