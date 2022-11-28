@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-FROM composer:2.2 as composer
+FROM composer:2.4 as composer
 WORKDIR /app
 COPY composer.json composer.lock /app/
 RUN composer install --no-interaction --optimize-autoloader --no-dev --no-scripts --prefer-dist
